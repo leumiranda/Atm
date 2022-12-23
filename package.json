@@ -1,0 +1,31 @@
+{
+  "name": "atm",
+  "version": "1.0.0",
+  "description": "Sistema para simular funcionamento de caixa eletrônico.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leumiranda/atm.git"
+  },
+  "author": "Leandro Miranda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leumiranda/atm/issues"
+  },
+  "homepage": "https://github.com/leumiranda/atm#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.20",
+    "pg": "^8.8.0",
+    "sequelize": "^6.28.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.30.0",
+    "eslint-config-airbnb": "^19.0.4"
+  }
+}
