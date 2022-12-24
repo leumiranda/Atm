@@ -2,6 +2,7 @@ module.exports = (sequelize, Sequelize) => {
   const Bank = sequelize.define('Bank', {
     nome: {
       type: Sequelize.STRING,
+      allowNull: false,
     },
   }, {
     tableName: 'banks',
