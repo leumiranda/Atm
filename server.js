@@ -3,14 +3,18 @@ const express = require('express');
 const app = express();
 
 const BankService = require('./services/bank');
+const AtmService = require('./services/atm');
 
 const bankService = new BankService();
+const atmService = new AtmService();
 
 // Banco de dados
 
 const db = require('./models'); // importa todos os modelos criados com sequelize
 
 app.use(express.json()); // Isso é um middleware
+
+// ------------- Banco
 
 app.post('/bank', async (req, res) => {
   const nome = req.body;
@@ -50,6 +54,15 @@ app.put('/bank/:id', async (req, res) => {
   return res.sendStatus(204);
 });
 
+// -------------- Atm
+
+app.post('/atm', async (req, res) => {
+  const { banks } = req.body;
+  await atmService.register({ banks });
+  return res.sendStatus(201);
+});
+
+// -------------- Servidor
 db.sequelize.sync()
   .then(() => {
     app.listen(3333, () => console.log('Server iniciado com sucesso'));
