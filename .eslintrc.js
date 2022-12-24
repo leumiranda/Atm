@@ -14,5 +14,6 @@ module.exports = {
     camelcase: 'off',
     'linebreak-style': 'off',
     'class-methods-use-this': 'off',
+    'no-console': 'off',
   },
 };

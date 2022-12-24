@@ -1,0 +1,9 @@
+{
+    "development": {
+      "username": "ccmahueh",
+      "password": "Rt_OenbPbCF26FistQDPWIsO4s5Mk8o4",
+      "database": "ccmahueh",
+      "host": "castor.db.elephantsql.com",
+      "dialect": "postgres"
+    }
+}
