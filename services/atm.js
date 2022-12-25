@@ -2,8 +2,8 @@ const { Atm } = require('../models');
 const { apiError500, apiError404 } = require('../utils/customError');
 
 class AtmService {
-  async register({ banks }) {
-    const bank_id = banks.map((end) => end.id);
+  async register({ id }) {
+    const bank_id = id;
     const atm = new Atm({ bank_id });
     await atm.save();
     return atm;
@@ -11,12 +11,7 @@ class AtmService {
 
   async list() {
     const atm = await Atm.findAll({
-      attributes: ['id', 'balance'],
-      include: [{
-        model: Atm,
-        as: 'banks',
-        attributes: ['id', 'nome'],
-      }],
+      attributes: ['id', 'balance', 'bank_id'],
     });
     return atm;
   }
@@ -33,12 +28,12 @@ class AtmService {
     }
   }
 
-  async edit(id, balance) {
+  async edit(id, bank_id, balance) {
     const findAtm = await Atm.findOne({ where: { id } });
     if (!findAtm) {
       throw apiError404;
     } else {
-      await Atm.update({ balance }, { where: { id } });
+      await Atm.update({ bank_id, balance }, { where: { id } });
     }
   }
 

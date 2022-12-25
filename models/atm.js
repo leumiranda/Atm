@@ -1,9 +1,9 @@
 module.exports = (sequelize, Sequelize) => {
   const Atm = sequelize.define('Atm', {
     balance: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.REAL,
       allowNull: false,
-      defaultValue: 10.000,
+      defaultValue: 10000.00,
     },
     bank_id: {
       type: Sequelize.INTEGER,

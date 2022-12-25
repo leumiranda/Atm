@@ -16,34 +16,24 @@ app.use(express.json()); // Isso é um middleware
 
 // ------------- Banco
 
-app.post('/bank', async (req, res) => {
-  const nome = req.body;
-  await bankService.register(nome);
+app.post('/banks', async (req, res) => {
+  const { nome } = req.body;
+  await bankService.register({ nome });
   return res.sendStatus(201);
 });
 
-app.get('/bank', async (req, res) => {
+app.get('/banks', async (req, res) => {
   const bank = await bankService.list();
   return res.json(bank);
 });
 
-app.get('/bank/:id', async (req, res) => {
+app.get('/banks/:id', async (req, res) => {
   const { id } = req.params;
   const bank = await bankService.find(id);
   return res.json(bank);
 });
 
-app.get('/bank/', async (req, res) => { // Está em desenvolvimento
-  const { banco } = req.query[{ banco: 'banco' }];
-  if (banco) {
-    const bankSelect = await bankService.search(banco);
-    return res.json(bankSelect);
-  }
-  const allBanks = await bankService.list();
-  return res.json(allBanks);
-});
-
-app.put('/bank/:id', async (req, res) => {
+app.put('/banks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome } = req.body;
@@ -56,10 +46,42 @@ app.put('/bank/:id', async (req, res) => {
 
 // -------------- Atm
 
-app.post('/atm', async (req, res) => {
-  const { banks } = req.body;
-  await atmService.register({ banks });
+app.post('/atms', async (req, res) => {
+  const { id } = req.body;
+  await atmService.register({ id });
   return res.sendStatus(201);
+});
+
+app.get('/atms', async (req, res) => {
+  const atm = await atmService.list();
+  return res.json(atm);
+});
+
+app.get('/atms/:id', async (req, res) => {
+  const { id } = req.params;
+  const atm = await atmService.find(id);
+  return res.json(atm);
+});
+
+app.put('/atms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { bank_id, balance } = req.body;
+    await atmService.edit(id, bank_id, balance);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
+});
+
+app.delete('/atms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await atmService.del(id);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
 });
 
 // -------------- Servidor

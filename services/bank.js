@@ -1,6 +1,5 @@
-const { Op } = require('sequelize');
 const { Bank } = require('../models');
-const { apiError500, apiError404 } = require('../utils/customError');
+const { apiError404 } = require('../utils/customError');
 
 class BankService {
   async register({ nome }) {
@@ -26,22 +25,10 @@ class BankService {
       attributes: ['id', 'nome'],
     });
     if (!bank) {
-      throw apiError500;
+      throw apiError404;
     } else {
       return bank;
     }
-  }
-
-  async search(banco) {
-    const bancos = await Bank.findAll({
-      attributes: ['id', 'nome'],
-      where: {
-        nome: {
-          [Op.iLike]: `${banco}%`,
-        },
-      },
-    });
-    return bancos;
   }
 
   async edit(id, nome) {
