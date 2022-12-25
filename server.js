@@ -14,7 +14,7 @@ app.use(express.json()); // Isso é um middleware
 
 app.post('/banks', async (req, res) => {
   const { nome } = req.body;
-  await bankService.register(nome);
+  await bankService.register({ nome });
   return res.sendStatus(201);
 });
 
@@ -29,21 +29,21 @@ app.get('/banks/:id', async (req, res) => {
   return res.json(bank);
 });
 
-app.get('/banks/', async (req, res) => { // Está em desenvolvimento
-  const { banco } = req.query[{ banco: 'banco' }];
-  if (banco) {
-    const bankSelect = await bankService.search(banco);
-    return res.json(bankSelect);
-  }
-  const allBanks = await bankService.list();
-  return res.json(allBanks);
-});
-
 app.put('/banks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome } = req.body;
     await bankService.edit(id, nome);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
+});
+
+app.delete('/banks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await bankService.del(id);
   } catch (error) {
     res.status(error.statusCode).json({ error: error.message });
   }
