@@ -13,16 +13,14 @@ class CustomerService {
         name, cpf, rg, bank_id,
       });
       await customer.save({ transaction: t });
-      const bankId = bank_id;
       const accounts = account.map((acc) => {
-        const newAccount = {
+        return {
           balance: 50,
           number: utils.generateNumberAccount(),
           password: acc.password,
-          bank_id: bankId,
+          bank_id,
           customer_id: customer.id,
         };
-        return newAccount;
       });
       await Account.bulkCreate(accounts, { transaction: t, individualHooks: true });
       await t.commit();
@@ -33,13 +31,19 @@ class CustomerService {
   }
 
   async registerAccount({ bank_id, password, customer_id }) {
-    const balance = 50;
-    const number = utils.generateNumberAccount();
-    const acc = await new Account({
-      balance, number, password, bank_id, customer_id,
-    });
-    await acc.save();
-    return acc;
+    const t = await sequelize.transaction();
+    try {
+      const balance = 50;
+      const number = utils.generateNumberAccount();
+      const acc = new Account({
+        balance, number, password, bank_id, customer_id,
+      });
+      await acc.save({ transaction: t });
+      await t.commit();
+    } catch (error) {
+      console.log(error);
+      await t.rollback();
+    }
   }
 
   async listAccount(id) {
@@ -81,16 +85,30 @@ class CustomerService {
 
   async edit(id, name, cpf, rg) {
     const findCustomer = await Customer.findOne({ where: { id } });
+    const t = await sequelize.transaction();
     if (!findCustomer) {
       throw apiError404;
     } else {
-      await Customer.update({ name, cpf, rg }, { where: { id } });
+      try {
+        await Customer.update({ name, cpf, rg }, { where: { id }, transaction: t });
+        t.commit();
+      } catch (error) {
+        console.log(error);
+        await t.rollback();
+      }
     }
   }
 
   async del(id) {
-    await Account.destroy({ where: { customer_id: id } });
-    await Customer.destroy({ where: { id } });
+    const t = await sequelize.transaction();
+    try {
+      await Account.destroy({ where: { customer_id: id }, transaction: t });
+      await Customer.destroy({ where: { id }, transaction: t });
+      t.commit();
+    } catch (error) {
+      console.log(error);
+      await t.rollback();
+    }
   }
 }
 

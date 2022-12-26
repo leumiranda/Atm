@@ -3,7 +3,7 @@ const { hash } = require('../utils/utils');
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
     balance: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.REAL,
       allowNull: false,
     },
     number: {
