@@ -1,4 +1,4 @@
-const { apiError404 } = require('../utils/customError');
+const { apiError404, CustomError } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize,
 } = require('../models');
@@ -46,13 +46,18 @@ class AccountService {
         await t.rollback();
       }
     } else {
-      throw apiError404;
+      throw new CustomError('Invalid Balance', 400, 'O balance depositado precisa ser maior que zero.');
     }
   }
 
   async balanceAccount({ id }) {
-    const balanceAcc = await Account.findOne({ where: { id } });
-    return balanceAcc.balance;
+    try {
+      const balanceAcc = await Account.findOne({
+        where: { id },
+        attributes: ['balance'],
+      });
+      return balanceAcc;
+    } catch (error) { throw apiError404; }
   }
 }
 
