@@ -88,6 +88,18 @@ app.delete('/atms/:id', async (req, res) => {
 
 // -------------- Account
 
+app.post('/accounts/', async (req, res) => {
+  const { bank_id, password, customer_id } = req.body;
+  await customerService.registerAccount({ bank_id, password, customer_id });
+  return res.sendStatus(201);
+});
+
+app.get('/accounts/:id', async (req, res) => {
+  const { id } = req.params;
+  const customer = await customerService.listAccount(id);
+  return res.json(customer);
+});
+
 app.post('/customers', async (req, res) => {
   const { customer, account } = req.body;
   await customerService.register({ ...customer, account });

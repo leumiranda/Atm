@@ -32,6 +32,24 @@ class CustomerService {
     }
   }
 
+  async registerAccount({ bank_id, password, customer_id }) {
+    const balance = 50;
+    const number = utils.generateNumberAccount();
+    const acc = await new Account({
+      balance, number, password, bank_id, customer_id,
+    });
+    await acc.save();
+    return acc;
+  }
+
+  async listAccount(id) {
+    const account = await Account.findAll({
+      where: { customer_id: id },
+      attributes: ['id', 'bank_id', 'number', 'balance'],
+    });
+    return account;
+  }
+
   async list() {
     const customer = await Customer.findAll({
       attributes: ['id', 'name', 'cpf', 'rg', 'bank_id'],
@@ -71,7 +89,6 @@ class CustomerService {
   }
 
   async del(id) {
-    console.log('TENTOU');
     await Account.destroy({ where: { customer_id: id } });
     await Customer.destroy({ where: { id } });
   }
