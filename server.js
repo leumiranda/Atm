@@ -3,14 +3,18 @@ const express = require('express');
 const app = express();
 
 const BankService = require('./services/bank');
+const AtmService = require('./services/atm');
 
 const bankService = new BankService();
+const atmService = new AtmService();
 
 // Banco de dados
 
 const db = require('./models'); // importa todos os modelos criados com sequelize
 
 app.use(express.json()); // Isso é um middleware
+
+// ------------- Banco
 
 app.post('/banks', async (req, res) => {
   const { nome } = req.body;
@@ -40,16 +44,47 @@ app.put('/banks/:id', async (req, res) => {
   return res.sendStatus(204);
 });
 
-app.delete('/banks/:id', async (req, res) => {
+// -------------- Atm
+
+app.post('/atms', async (req, res) => {
+  const { id, balance } = req.body;
+  await atmService.register({ id, balance });
+  return res.sendStatus(201);
+});
+
+app.get('/atms', async (req, res) => {
+  const atm = await atmService.list();
+  return res.json(atm);
+});
+
+app.get('/atms/:id', async (req, res) => {
+  const { id } = req.params;
+  const atm = await atmService.find(id);
+  return res.json(atm);
+});
+
+app.put('/atms/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await bankService.del(id);
+    const { bank_id, balance } = req.body;
+    await atmService.edit(id, bank_id, balance);
   } catch (error) {
     res.status(error.statusCode).json({ error: error.message });
   }
   return res.sendStatus(204);
 });
 
+app.delete('/atms/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await atmService.del(id);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
+});
+
+// -------------- Servidor
 db.sequelize.sync()
   .then(() => {
     app.listen(3333, () => console.log('Server iniciado com sucesso'));
