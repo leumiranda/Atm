@@ -8,10 +8,6 @@ class BankService {
     return bank;
   }
 
-  async bulkRegister(banks) {
-    return Bank.bulkCreate(banks);
-  }
-
   async list() {
     const bank = await Bank.findAll({
       attributes: ['id', 'nome'],

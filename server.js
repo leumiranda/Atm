@@ -47,8 +47,8 @@ app.put('/banks/:id', async (req, res) => {
 // -------------- Atm
 
 app.post('/atms', async (req, res) => {
-  const { id } = req.body;
-  await atmService.register({ id });
+  const { id, balance } = req.body;
+  await atmService.register({ id, balance });
   return res.sendStatus(201);
 });
 

@@ -2,9 +2,9 @@ const { Atm } = require('../models');
 const { apiError500, apiError404 } = require('../utils/customError');
 
 class AtmService {
-  async register({ id }) {
+  async register({ id, balance }) {
     const bank_id = id;
-    const atm = new Atm({ bank_id });
+    const atm = new Atm({ bank_id, balance });
     await atm.save();
     return atm;
   }

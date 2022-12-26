@@ -3,7 +3,6 @@ module.exports = (sequelize, Sequelize) => {
     balance: {
       type: Sequelize.REAL,
       allowNull: false,
-      defaultValue: 10000.00,
     },
     bank_id: {
       type: Sequelize.INTEGER,
