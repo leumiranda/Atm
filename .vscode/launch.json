@@ -2,13 +2,7 @@
     "configurations": [
         {
             "type": "node-terminal",
-            "name": "JavaScript Debug Terminal",
-            "request": "launch",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "node-terminal",
-            "name": "JavaScript Debug Terminal",
+            "name": "JS TERMINAL",
             "request": "launch",
             "cwd": "${workspaceFolder}"
         }
