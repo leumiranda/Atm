@@ -31,18 +31,15 @@ class CustomerService {
   }
 
   async registerAccount({ bank_id, password, customer_id }) {
-    const t = await sequelize.transaction();
     try {
       const balance = 50;
       const number = utils.generateNumberAccount();
       const acc = new Account({
         balance, number, password, bank_id, customer_id,
       });
-      await acc.save({ transaction: t });
-      await t.commit();
+      await acc.save();
     } catch (error) {
       console.log(error);
-      await t.rollback();
     }
   }
 
@@ -85,16 +82,13 @@ class CustomerService {
 
   async edit(id, name, cpf, rg) {
     const findCustomer = await Customer.findOne({ where: { id } });
-    const t = await sequelize.transaction();
     if (!findCustomer) {
       throw apiError404;
     } else {
       try {
-        await Customer.update({ name, cpf, rg }, { where: { id }, transaction: t });
-        t.commit();
+        await Customer.update({ name, cpf, rg }, { where: { id } });
       } catch (error) {
         console.log(error);
-        await t.rollback();
       }
     }
   }
