@@ -4,9 +4,11 @@ const app = express();
 
 const BankService = require('./services/bank');
 const AtmService = require('./services/atm');
+const CustomerService = require('./services/customer');
 
 const bankService = new BankService();
 const atmService = new AtmService();
+const customerService = new CustomerService();
 
 // Banco de dados
 
@@ -84,6 +86,57 @@ app.delete('/atms/:id', async (req, res) => {
   return res.sendStatus(204);
 });
 
+// -------------- Account
+
+app.post('/accounts/', async (req, res) => {
+  const { bank_id, password, customer_id } = req.body;
+  await customerService.registerAccount({ bank_id, password, customer_id });
+  return res.sendStatus(201);
+});
+
+app.get('/accounts/:id', async (req, res) => {
+  const { id } = req.params;
+  const customer = await customerService.listAccount(id);
+  return res.json(customer);
+});
+
+app.post('/customers', async (req, res) => {
+  const { customer, account } = req.body;
+  await customerService.register({ ...customer, account });
+  return res.sendStatus(201);
+});
+
+app.get('/customers', async (req, res) => {
+  const customer = await customerService.list();
+  return res.json(customer);
+});
+
+app.get('/customers/:id', async (req, res) => {
+  const { id } = req.params;
+  const customer = await customerService.find(id);
+  return res.json(customer);
+});
+
+app.put('/customers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, cpf, rg } = req.body;
+    await customerService.edit(id, name, cpf, rg);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(201);
+});
+
+app.delete('/customers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await customerService.del(id);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
+});
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

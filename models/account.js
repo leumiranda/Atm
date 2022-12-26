@@ -1,12 +1,13 @@
+const { hash } = require('../utils/utils');
+
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
     balance: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.REAL,
       allowNull: false,
     },
     number: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
     password: {
       type: Sequelize.STRING,
@@ -24,6 +25,10 @@ module.exports = (sequelize, Sequelize) => {
     tableName: 'accounts',
   });
 
+  Account.beforeCreate((acc) => {
+    acc.password = hash(acc.password);
+  });
+
   Account.associate = (models) => {
     Account.belongsTo(models.Bank, {
       foreignKey: 'bank_id',
@@ -32,6 +37,7 @@ module.exports = (sequelize, Sequelize) => {
     Account.belongsTo(models.Customer, {
       foreignKey: 'customer_id',
       as: 'customer',
+      ondeDelete: 'cascade',
     });
   };
 

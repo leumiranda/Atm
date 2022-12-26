@@ -15,5 +15,6 @@ module.exports = {
     'linebreak-style': 'off',
     'class-methods-use-this': 'off',
     'no-console': 'off',
+    'arrow-body-style': 'off',
   },
 };
