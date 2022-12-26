@@ -1,15 +1,15 @@
 module.exports = (sequelize, Sequelize) => {
   const Operation = sequelize.define('Operation', {
-    value: {
-      type: Sequelize.FLOAT,
+    balance: {
+      type: Sequelize.REAL,
       allowNull: false,
     },
     type: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.CHAR(1),
       allowNull: false,
     },
-    customer_id: {
-      type: Sequelize.INTEGER,
+    number: {
+      type: Sequelize.STRING,
       allowNull: false,
     },
     atm_id: {
@@ -21,9 +21,9 @@ module.exports = (sequelize, Sequelize) => {
   });
 
   Operation.associate = (models) => {
-    Operation.belongsTo(models.Customer, {
-      foreignKey: 'customer_id',
-      as: 'customer',
+    Operation.hasOne(models.Account, {
+      foreignKey: 'number',
+      as: 'account',
     });
     Operation.belongsTo(models.Atm, {
       foreignKey: 'atm_id',

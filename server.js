@@ -5,10 +5,12 @@ const app = express();
 const BankService = require('./services/bank');
 const AtmService = require('./services/atm');
 const CustomerService = require('./services/customer');
+const AccountService = require('./services/account');
 
 const bankService = new BankService();
 const atmService = new AtmService();
 const customerService = new CustomerService();
+const accountService = new AccountService();
 
 // Banco de dados
 
@@ -100,6 +102,8 @@ app.get('/accounts/:id', async (req, res) => {
   return res.json(customer);
 });
 
+// --------------- Customer
+
 app.post('/customers', async (req, res) => {
   const { customer, account } = req.body;
   await customerService.register({ ...customer, account });
@@ -137,6 +141,21 @@ app.delete('/customers/:id', async (req, res) => {
   }
   return res.sendStatus(204);
 });
+
+// -------------- Operations
+
+app.post('/account/deposit', async (req, res) => {
+  const { balance, number, atm_id } = req.body;
+  await accountService.deposit({ balance, number, atm_id });
+  return res.sendStatus(200);
+});
+
+app.get('/account/:id/balance', async (req, res) => {
+  const { id } = req.params;
+  await accountService.balanceAccount({ id });
+  return res.sendStatus(200);
+});
+
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {
