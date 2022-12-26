@@ -4,9 +4,11 @@ const app = express();
 
 const BankService = require('./services/bank');
 const AtmService = require('./services/atm');
+const CustomerService = require('./services/customer');
 
 const bankService = new BankService();
 const atmService = new AtmService();
+const customerService = new CustomerService();
 
 // Banco de dados
 
@@ -82,6 +84,19 @@ app.delete('/atms/:id', async (req, res) => {
     res.status(error.statusCode).json({ error: error.message });
   }
   return res.sendStatus(204);
+});
+
+// -------------- Account
+
+app.post('/customers', async (req, res) => {
+  const { customer, account } = req.body;
+  await customerService.register({ ...customer, account });
+  return res.sendStatus(201);
+});
+
+app.get('/customers', async (req, res) => {
+  const customer = await customerService.list();
+  return res.json(customer);
 });
 
 // -------------- Servidor

@@ -1,3 +1,5 @@
+const { hash } = require('../utils/utils');
+
 module.exports = (sequelize, Sequelize) => {
   const Account = sequelize.define('Account', {
     balance: {
@@ -6,7 +8,6 @@ module.exports = (sequelize, Sequelize) => {
     },
     number: {
       type: Sequelize.STRING,
-      allowNull: false,
     },
     password: {
       type: Sequelize.STRING,
@@ -22,6 +23,10 @@ module.exports = (sequelize, Sequelize) => {
     },
   }, {
     tableName: 'accounts',
+  });
+
+  Account.beforeCreate((acc) => {
+    acc.password = hash(acc.password);
   });
 
   Account.associate = (models) => {
