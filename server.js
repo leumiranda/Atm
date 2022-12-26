@@ -150,6 +150,12 @@ app.post('/account/deposit', async (req, res) => {
   return res.sendStatus(200);
 });
 
+app.get('/account/:id/balance', async (req, res) => {
+  const { id } = req.params;
+  await accountService.balanceAccount({ id });
+  return res.sendStatus(200);
+});
+
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

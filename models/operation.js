@@ -5,7 +5,7 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
     type: {
-      type: Sequelize.STRING,
+      type: Sequelize.CHAR(1),
       allowNull: false,
     },
     number: {
@@ -23,7 +23,7 @@ module.exports = (sequelize, Sequelize) => {
   Operation.associate = (models) => {
     Operation.hasOne(models.Account, {
       foreignKey: 'number',
-      as: 'accounts',
+      as: 'account',
     });
     Operation.belongsTo(models.Atm, {
       foreignKey: 'atm_id',
