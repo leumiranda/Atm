@@ -136,23 +136,31 @@ app.delete('/customers/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await customerService.del(id);
+    return res.sendStatus(204);
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ error: error.message });
   }
-  return res.sendStatus(204);
 });
 
 // -------------- Operations
 
 app.post('/account/deposit', async (req, res) => {
-  const { balance, number, atm_id } = req.body;
-  await accountService.deposit({ balance, number, atm_id });
-  return res.sendStatus(200);
+  try {
+    const { balance, number, atm_id } = req.body;
+    await accountService.deposit({ balance, number, atm_id });
+    return res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    return res.status(error.statusCode).json({ error: error.message });
+  }
 });
 
 app.get('/account/:id/balance', async (req, res) => {
-  const { id } = req.params;
-  await accountService.balanceAccount({ id });
+  try {
+    const { id } = req.params;
+    const balance = await accountService.balanceAccount({ id });
+    return res.json(balance);
+  } catch (error) { res.status(error.statusCode).json({ error: error.message }); }
   return res.sendStatus(200);
 });
 
