@@ -99,6 +99,32 @@ app.get('/customers', async (req, res) => {
   return res.json(customer);
 });
 
+app.get('/customers/:id', async (req, res) => {
+  const { id } = req.params;
+  const customer = await customerService.find(id);
+  return res.json(customer);
+});
+
+app.put('/customers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, cpf, rg } = req.body;
+    await customerService.edit(id, name, cpf, rg);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(201);
+});
+
+app.delete('/customers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await customerService.del(id);
+  } catch (error) {
+    res.status(error.statusCode).json({ error: error.message });
+  }
+  return res.sendStatus(204);
+});
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

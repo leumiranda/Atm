@@ -1,5 +1,6 @@
 const utils = require('../utils/utils');
 const { Customer, Account, sequelize } = require('../models');
+const { apiError404 } = require('../utils/customError');
 // const { apiError404, apiError403 } = require('../utils/customError');
 
 class CustomerService {
@@ -41,6 +42,38 @@ class CustomerService {
       }],
     });
     return customer;
+  }
+
+  async find(id) {
+    const customer = await Customer.findOne({
+      where: { id },
+      attributes: ['id', 'name', 'cpf', 'rg', 'bank_id'],
+      include: [{
+        model: Account,
+        as: 'accounts',
+        attributes: ['id', 'balance', 'number'],
+      }],
+    });
+    if (!customer) {
+      throw apiError404;
+    } else {
+      return customer;
+    }
+  }
+
+  async edit(id, name, cpf, rg) {
+    const findCustomer = await Customer.findOne({ where: { id } });
+    if (!findCustomer) {
+      throw apiError404;
+    } else {
+      await Customer.update({ name, cpf, rg }, { where: { id } });
+    }
+  }
+
+  async del(id) {
+    console.log('TENTOU');
+    await Account.destroy({ where: { customer_id: id } });
+    await Customer.destroy({ where: { id } });
   }
 }
 

@@ -37,6 +37,7 @@ module.exports = (sequelize, Sequelize) => {
     Account.belongsTo(models.Customer, {
       foreignKey: 'customer_id',
       as: 'customer',
+      ondeDelete: 'cascade',
     });
   };
 
