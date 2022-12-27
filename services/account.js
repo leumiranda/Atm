@@ -40,8 +40,8 @@ class AccountService {
           atm_id,
         });
 
+        await operation.save({ transaction: t });
         await t.commit();
-        await operation.save();
       } catch (error) {
         await t.rollback();
       }
@@ -87,8 +87,8 @@ class AccountService {
               atm_id,
             });
 
+            await operation.save({ transaction: t });
             await t.commit();
-            await operation.save();
           } catch (error) {
             await t.rollback();
           }
@@ -153,15 +153,15 @@ class AccountService {
             account_id: findAccount.id,
             atm_id,
           });
-          await t.commit();
-          await operation.save();
+          await operation.save({ transaction: t });
           const transfer = new OperationTransfer({
             target_bank_id: findAccount.bank_id,
             target_account_id: findTargetAccount.id,
             operations_id: operation.id,
           });
 
-          transfer.save();
+          transfer.save({ transaction: t });
+          await t.commit();
         } catch (error) {
           await t.rollback();
         }
