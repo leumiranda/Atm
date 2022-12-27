@@ -40,8 +40,8 @@ class AccountService {
           atm_id,
         });
 
-        t.commit();
-        operation.save();
+        await t.commit();
+        await operation.save();
       } catch (error) {
         await t.rollback();
       }
@@ -87,8 +87,8 @@ class AccountService {
               atm_id,
             });
 
-            t.commit();
-            operation.save();
+            await t.commit();
+            await operation.save();
           } catch (error) {
             await t.rollback();
           }
