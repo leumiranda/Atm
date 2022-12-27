@@ -183,6 +183,17 @@ app.post('/account/withdraw', async (req, res) => {
   }
 });
 
+app.post('/account/teste', async (req, res) => {
+  try {
+    const { target_bank_id, target_account_id, operations_id } = req.body;
+    await accountService.teste({ target_bank_id, target_account_id, operations_id });
+    return res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+});
+
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

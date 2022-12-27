@@ -1,6 +1,6 @@
 const { CustomError } = require('../utils/customError');
 const {
-  Account, Operation, Atm, sequelize,
+  Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
 
 class AccountService {
@@ -9,7 +9,7 @@ class AccountService {
     const [findAccount, findAtm] = await Promise.all([
       Account.findOne({
         where: { number },
-        attributes: ['balance'],
+        attributes: ['id', 'balance'],
       }),
       Atm.findOne({
         where: { id: atm_id },
@@ -36,7 +36,7 @@ class AccountService {
         const operation = new Operation({
           balance,
           type: 'D',
-          number,
+          account_id: findAccount.id,
           atm_id,
         });
 
@@ -55,7 +55,7 @@ class AccountService {
     const [findAccount, findAtm] = await Promise.all([
       Account.findOne({
         where: { number },
-        attributes: ['balance'],
+        attributes: ['id', 'balance'],
       }),
       Atm.findOne({
         where: { id: atm_id },
@@ -83,7 +83,7 @@ class AccountService {
             const operation = new Operation({
               balance: amount,
               type: 'W',
-              number,
+              account_id: findAccount.id,
               atm_id,
             });
 
@@ -113,6 +113,18 @@ class AccountService {
     } catch (error) {
       throw new CustomError('Invalid Account', 404, 'O ID inserido não está listado.');
     }
+  }
+
+  async teste({ target_bank_id, target_account_id, operations_id }) {
+    const teste = new OperationTransfer({ target_bank_id, target_account_id, operations_id });
+    await teste.save();
+    this.findTest(1);
+    return console.log('CADASTROU');
+  }
+
+  async findTest(id) {
+    const findTest = await Operation.findOne({ where: { id } });
+    console.log(findTest);
   }
 }
 
