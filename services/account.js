@@ -9,7 +9,7 @@ class AccountService {
     const [findAccount, findAtm] = await Promise.all([
       Account.findOne({
         where: { number },
-        attributes: ['balance'],
+        attributes: ['id', 'balance'],
       }),
       Atm.findOne({
         where: { id: atm_id },
@@ -36,7 +36,7 @@ class AccountService {
         const operation = new Operation({
           balance,
           type: 'D',
-          number,
+          account_id: findAccount.id,
           atm_id,
         });
 
@@ -55,7 +55,7 @@ class AccountService {
     const [findAccount, findAtm] = await Promise.all([
       Account.findOne({
         where: { number },
-        attributes: ['balance'],
+        attributes: ['id', 'balance'],
       }),
       Atm.findOne({
         where: { id: atm_id },
@@ -83,7 +83,7 @@ class AccountService {
             const operation = new Operation({
               balance: amount,
               type: 'W',
-              number,
+              account_id: findAccount.id,
               atm_id,
             });
 

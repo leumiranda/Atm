@@ -8,8 +8,8 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.CHAR(1),
       allowNull: false,
     },
-    number: {
-      type: Sequelize.STRING,
+    account_id: {
+      type: Sequelize.INTEGER,
       allowNull: false,
     },
     atm_id: {
@@ -22,12 +22,16 @@ module.exports = (sequelize, Sequelize) => {
 
   Operation.associate = (models) => {
     Operation.hasOne(models.Account, {
-      foreignKey: 'number',
+      foreignKey: 'account_id',
       as: 'account',
     });
     Operation.belongsTo(models.Atm, {
       foreignKey: 'atm_id',
       as: 'atm',
+    });
+    Operation.belongsTo(models.OperationTransfer, {
+      foreignKey: 'operations_id',
+      as: 'operation',
     });
   };
 
