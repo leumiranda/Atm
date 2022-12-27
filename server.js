@@ -164,6 +164,17 @@ app.get('/account/:id/balance', async (req, res) => {
   return res.sendStatus(200);
 });
 
+app.post('/account/withdraw', async (req, res) => {
+  try {
+    const { amount, number, atm_id } = req.body;
+    await accountService.withdraw({ amount, number, atm_id });
+    return res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+});
+
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {
