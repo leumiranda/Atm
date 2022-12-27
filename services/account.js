@@ -1,6 +1,6 @@
 const { CustomError } = require('../utils/customError');
 const {
-  Account, Operation, Atm, sequelize, OperationTransfer,
+  Account, Operation, Atm, sequelize,
 } = require('../models');
 
 class AccountService {
@@ -113,18 +113,6 @@ class AccountService {
     } catch (error) {
       throw new CustomError('Invalid Account', 404, 'O ID inserido não está listado.');
     }
-  }
-
-  async teste({ target_bank_id, target_account_id, operations_id }) {
-    const teste = new OperationTransfer({ target_bank_id, target_account_id, operations_id });
-    await teste.save();
-    this.findTest(1);
-    return console.log('CADASTROU');
-  }
-
-  async findTest(id) {
-    const findTest = await Operation.findOne({ where: { id } });
-    console.log(findTest);
   }
 }
 
