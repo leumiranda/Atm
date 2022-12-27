@@ -1,6 +1,6 @@
 const { CustomError } = require('../utils/customError');
 const {
-  Account, Operation, Atm, sequelize,
+  Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
 
 class AccountService {
@@ -40,8 +40,8 @@ class AccountService {
           atm_id,
         });
 
+        await operation.save({ transaction: t });
         await t.commit();
-        await operation.save();
       } catch (error) {
         await t.rollback();
       }
@@ -87,8 +87,8 @@ class AccountService {
               atm_id,
             });
 
+            await operation.save({ transaction: t });
             await t.commit();
-            await operation.save();
           } catch (error) {
             await t.rollback();
           }
@@ -112,6 +112,64 @@ class AccountService {
       return balanceAcc;
     } catch (error) {
       throw new CustomError('Invalid Account', 404, 'O ID inserido não está listado.');
+    }
+  }
+
+  async transfer({
+    amount, myNumber, targetNumber, atm_id,
+  }) {
+    const t = await sequelize.transaction();
+    const [findAccount, findTargetAccount] = await Promise.all([
+      Account.findOne({
+        where: { number: myNumber },
+        attributes: ['id', 'balance'],
+      }),
+      Account.findOne({
+        where: { number: targetNumber },
+        attributes: ['id', 'balance'],
+      }),
+    ]);
+    if (amount > 0) {
+      if (amount <= findAccount.balance) {
+        try {
+          await Promise.all([
+            Account.update({
+              balance: findAccount.balance - amount,
+            }, {
+              where: { number: myNumber },
+              transaction: t,
+            }),
+            Account.update({
+              balance: findTargetAccount.balance + amount,
+            }, {
+              where: { number: targetNumber },
+              transaction: t,
+            }),
+          ]);
+
+          const operation = new Operation({
+            balance: amount,
+            type: 'T',
+            account_id: findAccount.id,
+            atm_id,
+          });
+          await operation.save({ transaction: t });
+          const transfer = new OperationTransfer({
+            target_bank_id: findAccount.bank_id,
+            target_account_id: findTargetAccount.id,
+            operations_id: operation.id,
+          });
+
+          transfer.save({ transaction: t });
+          await t.commit();
+        } catch (error) {
+          await t.rollback();
+        }
+      } else {
+        throw new CustomError('Invalid Transfer', 404, 'Verifique o saldo disponível.');
+      }
+    } else {
+      throw new CustomError('Invalid Transfer', 400, 'O valor da transferência precisa ser maior que zero.');
     }
   }
 }
