@@ -18,6 +18,11 @@ const db = require('./models'); // importa todos os modelos criados com sequeliz
 
 app.use(express.json()); // Isso é um middleware
 
+app.use((req, res, next) => {
+  console.log('Request Type:', req.method, req.path);
+  next();
+});
+
 // ------------- Banco
 
 app.post('/banks', async (req, res) => {
@@ -42,10 +47,10 @@ app.put('/banks/:id', async (req, res) => {
     const { id } = req.params;
     const { nome } = req.body;
     await bankService.edit(id, nome);
+    return res.sendStatus(204);
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ error: error.message });
   }
-  return res.sendStatus(204);
 });
 
 // -------------- Atm
@@ -64,7 +69,7 @@ app.get('/atms', async (req, res) => {
 app.get('/atms/:id', async (req, res) => {
   const { id } = req.params;
   const atm = await atmService.find(id);
-  return res.json(atm);
+  res.json(atm);
 });
 
 app.put('/atms/:id', async (req, res) => {
@@ -72,10 +77,10 @@ app.put('/atms/:id', async (req, res) => {
     const { id } = req.params;
     const { bank_id, balance } = req.body;
     await atmService.edit(id, bank_id, balance);
+    return res.sendStatus(204);
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ error: error.message });
   }
-  return res.sendStatus(204);
 });
 
 app.delete('/atms/:id', async (req, res) => {
@@ -83,8 +88,9 @@ app.delete('/atms/:id', async (req, res) => {
     const { id } = req.params;
     await atmService.del(id);
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ error: error.message });
   }
+  console.log('Request Type:', req.method, req.path);
   return res.sendStatus(204);
 });
 
@@ -99,7 +105,7 @@ app.post('/accounts/', async (req, res) => {
 app.get('/accounts/:id', async (req, res) => {
   const { id } = req.params;
   const customer = await customerService.listAccount(id);
-  return res.json(customer);
+  res.json(customer);
 });
 
 // --------------- Customer
@@ -126,10 +132,10 @@ app.put('/customers/:id', async (req, res) => {
     const { id } = req.params;
     const { name, cpf, rg } = req.body;
     await customerService.edit(id, name, cpf, rg);
+    return res.sendStatus(201);
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ error: error.message });
   }
-  return res.sendStatus(201);
 });
 
 app.delete('/customers/:id', async (req, res) => {
@@ -148,6 +154,7 @@ app.post('/account/deposit', async (req, res) => {
   try {
     const { balance, number, atm_id } = req.body;
     await accountService.deposit({ balance, number, atm_id });
+    console.log('Request Type:', req.method, req.path);
     return res.sendStatus(204);
   } catch (error) {
     console.log(error);
@@ -160,8 +167,9 @@ app.get('/account/:id/balance', async (req, res) => {
     const { id } = req.params;
     const balance = await accountService.balanceAccount({ id });
     return res.json(balance);
-  } catch (error) { res.status(error.statusCode).json({ error: error.message }); }
-  return res.sendStatus(200);
+  } catch (error) {
+    return res.status(error.statusCode).json({ error: error.message });
+  }
 });
 
 app.post('/account/withdraw', async (req, res) => {
