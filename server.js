@@ -183,6 +183,20 @@ app.post('/account/withdraw', async (req, res) => {
   }
 });
 
+app.post('/account/transfer', async (req, res) => {
+  try {
+    const {
+      amount, myNumber, targetNumber, atm_id,
+    } = req.body;
+    await accountService.transfer({
+      amount, myNumber, targetNumber, atm_id,
+    });
+    return res.sendStatus(204);
+  } catch (error) {
+    console.log(error);
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+});
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

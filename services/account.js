@@ -1,6 +1,6 @@
 const { CustomError } = require('../utils/customError');
 const {
-  Account, Operation, Atm, sequelize,
+  Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
 
 class AccountService {
@@ -112,6 +112,67 @@ class AccountService {
       return balanceAcc;
     } catch (error) {
       throw new CustomError('Invalid Account', 404, 'O ID inserido não está listado.');
+    }
+  }
+
+  async transfer({
+    amount, myNumber, targetNumber, atm_id,
+  }) {
+    const t = await sequelize.transaction();
+    const [findAccount, findAtm, findTargetAccount] = await Promise.all([
+      Account.findOne({
+        where: { number: myNumber },
+        attributes: ['id', 'balance'],
+      }),
+      Atm.findOne({
+        where: { id: atm_id },
+        attributes: ['id', 'balance', 'bank_id'],
+      }),
+      Account.findOne({
+        where: { number: targetNumber },
+        attributes: ['id', 'balance'],
+      }),
+    ]);
+    if (amount > 0) {
+      try {
+        await Promise.all([
+          Account.update({
+            balance: findAccount.balance - amount,
+          }, {
+            where: { number: myNumber },
+            transaction: t,
+          }),
+          Account.update({
+            balance: findTargetAccount.balance + amount,
+          }, {
+            where: { number: targetNumber },
+            transaction: t,
+          }),
+        ]);
+
+        const operation = new Operation({
+          balance: amount,
+          type: 'T',
+          account_id: findAccount.id,
+          atm_id: findAtm.id,
+        });
+        await t.commit();
+        await operation.save();
+        const findOperation = await Operation.findOne({
+          where: { account_id: findAccount.id },
+          attributes: ['id'],
+        });
+
+        const transfer = new OperationTransfer({
+          target_bank_id: findAtm.bank_id,
+          target_account_id: findTargetAccount.id,
+          operations_id: findOperation.id,
+        });
+
+        transfer.save();
+      } catch (error) {
+        await t.rollback();
+      }
     }
   }
 }
