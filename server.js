@@ -28,7 +28,13 @@ const checkToken = (req, res, next) => {
   if (!token || token === 'undefined') {
     return res.sendStatus(403);
   }
-  return next();
+  try {
+    const secret = process.env.SECRET;
+    jwt.verify(token, secret);
+    return next();
+  } catch (error) {
+    return res.status(400).json({ msg: 'Token inválido.' });
+  }
 };
 
 app.use((req, res, next) => {
@@ -130,7 +136,7 @@ app.post('/customers', async (req, res) => {
   return res.sendStatus(201);
 });
 
-app.get('/customers', checkToken, async (req, res) => {
+app.get('/customers', async (req, res) => {
   const customer = await customerService.list();
   return res.json(customer);
 });
