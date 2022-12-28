@@ -150,6 +150,14 @@ app.delete('/customers/:id', async (req, res) => {
 
 // -------------- Operations
 
+app.post('/accounts/login', async (req, res) => {
+  try {
+    const { number, password } = req.body;
+    const account = await accountService.login(number, password);
+    return res.json({ account });
+  } catch (error) { return res.status(error.statusCode).json({ error: error.message }); }
+});
+
 app.post('/account/deposit', async (req, res) => {
   try {
     const { balance, number, atm_id } = req.body;
