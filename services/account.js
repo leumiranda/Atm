@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { CustomError } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize, OperationTransfer,
@@ -171,6 +172,24 @@ class AccountService {
     } else {
       throw new CustomError('Invalid Transfer', 400, 'O valor da transferência precisa ser maior que zero.');
     }
+  }
+
+  async login(number, password) {
+    const account = await Account.findOne({
+      where: { number },
+    });
+    if (!account) {
+      throw CustomError.apiError404;
+    }
+    const verify = await bcrypt.compare(password, account.password);
+    if (!verify) {
+      throw CustomError.apiError403;
+    }
+    return {
+      bank_id: account.bank_id,
+      account: account.number,
+      balance: account.balance,
+    };
   }
 }
 
