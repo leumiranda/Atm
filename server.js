@@ -20,7 +20,7 @@ const db = require('./models'); // importa todos os modelos criados com sequeliz
 
 app.use(express.json()); // Isso é um middleware
 
-const checkToken = (req, res, next) => {
+const authorization = (req, res, next) => {
   const authToken = req.headers.authorization;
   const token = authToken && authToken.split(' ')[1];
   console.log('token', token);
@@ -29,11 +29,10 @@ const checkToken = (req, res, next) => {
     return res.sendStatus(403);
   }
   try {
-    const secret = process.env.SECRET;
-    jwt.verify(token, secret);
+    jwt.verify(token, process.env.SECRET);
     return next();
   } catch (error) {
-    return res.status(400).json({ msg: 'Token inválido.' });
+    return res.status(403);
   }
 };
 
@@ -45,24 +44,24 @@ app.use((req, res, next) => {
 
 // ------------- Banco
 
-app.post('/banks', checkToken, async (req, res) => {
+app.post('/banks', authorization, async (req, res) => {
   const { nome } = req.body;
   await bankService.register({ nome });
   return res.sendStatus(201);
 });
 
-app.get('/banks', checkToken, async (req, res) => {
+app.get('/banks', authorization, async (req, res) => {
   const bank = await bankService.list();
   return res.json(bank);
 });
 
-app.get('/banks/:id', checkToken, async (req, res) => {
+app.get('/banks/:id', authorization, async (req, res) => {
   const { id } = req.params;
   const bank = await bankService.find(id);
   return res.json(bank);
 });
 
-app.put('/banks/:id', checkToken, async (req, res) => {
+app.put('/banks/:id', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { nome } = req.body;
@@ -75,24 +74,24 @@ app.put('/banks/:id', checkToken, async (req, res) => {
 
 // -------------- Atm
 
-app.post('/atms', checkToken, async (req, res) => {
+app.post('/atms', authorization, async (req, res) => {
   const { id, balance } = req.body;
   await atmService.register({ id, balance });
   return res.sendStatus(201);
 });
 
-app.get('/atms', checkToken, async (req, res) => {
+app.get('/atms', authorization, async (req, res) => {
   const atm = await atmService.list();
   return res.json(atm);
 });
 
-app.get('/atms/:id', checkToken, async (req, res) => {
+app.get('/atms/:id', authorization, async (req, res) => {
   const { id } = req.params;
   const atm = await atmService.find(id);
   res.json(atm);
 });
 
-app.put('/atms/:id', checkToken, async (req, res) => {
+app.put('/atms/:id', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { bank_id, balance } = req.body;
@@ -103,7 +102,7 @@ app.put('/atms/:id', checkToken, async (req, res) => {
   }
 });
 
-app.delete('/atms/:id', checkToken, async (req, res) => {
+app.delete('/atms/:id', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     await atmService.del(id);
@@ -116,13 +115,13 @@ app.delete('/atms/:id', checkToken, async (req, res) => {
 
 // -------------- Account
 
-app.post('/accounts/', checkToken, async (req, res) => {
+app.post('/accounts/', authorization, async (req, res) => {
   const { bank_id, password, customer_id } = req.body;
   await customerService.registerAccount({ bank_id, password, customer_id });
   return res.sendStatus(201);
 });
 
-app.get('/accounts/:id', checkToken, async (req, res) => {
+app.get('/accounts/:id', authorization, async (req, res) => {
   const { id } = req.params;
   const customer = await customerService.listAccount(id);
   res.json(customer);
@@ -141,13 +140,13 @@ app.get('/customers', async (req, res) => {
   return res.json(customer);
 });
 
-app.get('/customers/:id', checkToken, async (req, res) => {
+app.get('/customers/:id', authorization, async (req, res) => {
   const { id } = req.params;
   const customer = await customerService.find(id);
   return res.json(customer);
 });
 
-app.put('/customers/:id', checkToken, async (req, res) => {
+app.put('/customers/:id', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, cpf, rg } = req.body;
@@ -158,7 +157,7 @@ app.put('/customers/:id', checkToken, async (req, res) => {
   }
 });
 
-app.delete('/customers/:id', checkToken, async (req, res) => {
+app.delete('/customers/:id', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     await customerService.del(id);
@@ -174,15 +173,14 @@ app.post('/accounts/login', async (req, res) => {
   try {
     const { number, password } = req.body;
     await accountService.login(number, password);
-    const secret = process.env.SECRET;
     const token = jwt.sign({
       number,
-    }, secret);
+    }, process.env.SECRET);
     return res.status(200).json({ token });
   } catch (error) { return res.status(error.statusCode).json({ error: error.message }); }
 });
 
-app.post('/accounts/deposit', checkToken, async (req, res) => {
+app.post('/accounts/deposit', authorization, async (req, res) => {
   try {
     const { balance, number, atm_id } = req.body;
     console.log(req.body);
@@ -194,7 +192,7 @@ app.post('/accounts/deposit', checkToken, async (req, res) => {
   }
 });
 
-app.get('/accounts/:id/balance', checkToken, async (req, res) => {
+app.get('/accounts/:id/balance', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const balance = await accountService.balanceAccount({ id });
@@ -204,7 +202,7 @@ app.get('/accounts/:id/balance', checkToken, async (req, res) => {
   }
 });
 
-app.post('/accounts/withdraw', checkToken, async (req, res) => {
+app.post('/accounts/withdraw', authorization, async (req, res) => {
   try {
     const { amount, number, atm_id } = req.body;
     await accountService.withdraw({ amount, number, atm_id });
@@ -215,7 +213,7 @@ app.post('/accounts/withdraw', checkToken, async (req, res) => {
   }
 });
 
-app.post('/accounts/transfer', checkToken, async (req, res) => {
+app.post('/accounts/transfer', authorization, async (req, res) => {
   try {
     const {
       amount, myNumber, targetNumber, atm_id,

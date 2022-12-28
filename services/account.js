@@ -3,7 +3,6 @@ const { CustomError } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
-const customError = require('../utils/customError');
 
 class AccountService {
   async deposit({ balance, number, atm_id }) {
@@ -180,11 +179,11 @@ class AccountService {
       where: { number },
     });
     if (!account) {
-      throw customError.apiError404;
+      throw CustomError.apiError404;
     }
     const verify = await bcrypt.compare(password, account.password);
     if (!verify) {
-      throw customError.apiError403;
+      throw CustomError.apiError403;
     }
     return {
       bank_id: account.bank_id,
