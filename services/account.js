@@ -3,6 +3,7 @@ const { CustomError } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
+const customError = require('../utils/customError');
 
 class AccountService {
   async deposit({ balance, number, atm_id }) {
@@ -179,11 +180,11 @@ class AccountService {
       where: { number },
     });
     if (!account) {
-      throw new CustomError('NotFound', 404, 'Entidade não encontrada');
+      throw customError.apiError404;
     }
     const verify = await bcrypt.compare(password, account.password);
     if (!verify) {
-      throw new CustomError('Invalid Password', 403, 'Se você errar muitas vezes poderá bloquear sua conta.');
+      throw customError.apiError403;
     }
     return {
       bank_id: account.bank_id,
