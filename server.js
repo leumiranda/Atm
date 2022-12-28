@@ -1,4 +1,6 @@
 const express = require('express');
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -153,8 +155,12 @@ app.delete('/customers/:id', async (req, res) => {
 app.post('/accounts/login', async (req, res) => {
   try {
     const { number, password } = req.body;
-    const account = await accountService.login(number, password);
-    return res.json({ account });
+    await accountService.login(number, password);
+    const secret = process.env.SECRET;
+    const token = jwt.sign({
+      id: number,
+    }, secret);
+    return res.json({ msg: 'Login efetuado com sucesso.', token });
   } catch (error) { return res.status(error.statusCode).json({ error: error.message }); }
 });
 
