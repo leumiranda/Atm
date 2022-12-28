@@ -3,7 +3,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 const app = express();
-
+const env = require('./config').utils;
 const BankService = require('./services/bank');
 const AtmService = require('./services/atm');
 const CustomerService = require('./services/customer');
@@ -29,7 +29,7 @@ const authorization = (req, res, next) => {
     return res.sendStatus(403);
   }
   try {
-    jwt.verify(token, process.env.SECRET);
+    jwt.verify(token, env.secret);
     return next();
   } catch (error) {
     return res.status(403);
@@ -192,6 +192,16 @@ app.post('/accounts/deposit', authorization, async (req, res) => {
   }
 });
 
+app.get('/accounts/:id/reports', authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reports = await accountService.reportAccount({ id });
+    return res.json(reports);
+  } catch (error) {
+    return res.status(error.statusCode).json({ error: error.message });
+  }
+});
+
 app.get('/accounts/:id/balance', authorization, async (req, res) => {
   try {
     const { id } = req.params;
@@ -227,6 +237,7 @@ app.post('/accounts/transfer', authorization, async (req, res) => {
     return res.status(error.statusCode).json({ error: error.message });
   }
 });
+
 // -------------- Servidor
 db.sequelize.sync()
   .then(() => {

@@ -5,7 +5,6 @@ const Sequelize = require('sequelize');
 
 const basename = path.basename(__filename);
 const config = require(__dirname + '/../config.js').database;
-console.log(config);
 const db = {};
 let sequelize;
 if (config.use_env_variable) {
