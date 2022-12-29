@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { CustomError } = require('../utils/customError');
+const { CustomError, apiError403, apiError404 } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize, OperationTransfer,
 } = require('../models');
@@ -179,11 +179,11 @@ class AccountService {
       where: { number },
     });
     if (!account) {
-      throw CustomError.apiError404;
+      throw apiError404;
     }
     const verify = await bcrypt.compare(password, account.password);
     if (!verify) {
-      throw CustomError.apiError403;
+      throw apiError403;
     }
     return {
       bank_id: account.bank_id,
