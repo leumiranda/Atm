@@ -185,14 +185,15 @@ class AccountService {
       };
       if (type !== undefined) {
         filter.where.type = type;
+        const reportAccount = await Operation.findAll(filter);
+        return reportAccount;
+      }
+      if (startDate !== undefined) {
+        filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }] };
         let reportAccount = await Operation.findAll(filter);
-        if (startDate !== undefined) {
-          filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }] };
+        if (endDate !== undefined) {
+          filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] };
           reportAccount = await Operation.findAll(filter);
-          if (endDate !== undefined) {
-            filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] };
-            reportAccount = await Operation.findAll(filter);
-          }
           return reportAccount;
         }
         return reportAccount;
