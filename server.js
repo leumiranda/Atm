@@ -190,7 +190,7 @@ app.post('/accounts/deposit', authorization, async (req, res) => {
   }
 });
 
-app.get('/accounts/:id/reports', async (req, res) => {
+app.get('/accounts/:id/reports', authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { type, startDate, finalDate } = req.query;
