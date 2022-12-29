@@ -23,7 +23,6 @@ app.use(express.json()); // Isso é um middleware
 const authorization = (req, res, next) => {
   const authToken = req.headers.authorization;
   const token = authToken && authToken.split(' ')[1];
-  console.log('token', token);
 
   if (!token || token === 'undefined') {
     return res.sendStatus(403);
@@ -38,7 +37,6 @@ const authorization = (req, res, next) => {
 
 app.use((req, res, next) => {
   console.log('Request Type:', req.method, req.path);
-  console.log(req.body);
   next();
 });
 
@@ -192,10 +190,14 @@ app.post('/accounts/deposit', authorization, async (req, res) => {
   }
 });
 
-app.get('/accounts/:id/reports', authorization, async (req, res) => {
+app.get('/accounts/:id/reports', async (req, res) => {
   try {
     const { id } = req.params;
-    const reports = await accountService.reportAccount({ id });
+    const { type, startDate, finalDate } = req.query;
+
+    const reports = await accountService.reportAccount({
+      id, type, startDate, finalDate,
+    });
     return res.json(reports);
   } catch (error) {
     return res.status(error.statusCode).json({ error: error.message });
