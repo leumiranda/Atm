@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 const { CustomError, apiError403, apiError404 } = require('../utils/customError');
 const {
   Account, Operation, Atm, sequelize, OperationTransfer,
@@ -171,6 +172,36 @@ class AccountService {
       }
     } else {
       throw new CustomError('Invalid Transfer', 400, 'O valor da transferência precisa ser maior que zero.');
+    }
+  }
+
+  async reportAccount({
+    id, type, startDate, endDate,
+  }) {
+    try {
+      const filter = {
+        where: { account_id: id },
+        attributes: ['id', 'balance', 'type', 'atm_id', 'createdAt'],
+      };
+      if (type !== undefined) {
+        filter.where.type = type;
+        const reportAccount = await Operation.findAll(filter);
+        return reportAccount;
+      }
+      if (startDate !== undefined) {
+        filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }] };
+        let reportAccount = await Operation.findAll(filter);
+        if (endDate !== undefined) {
+          filter.where.createdAt = { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] };
+          reportAccount = await Operation.findAll(filter);
+          return reportAccount;
+        }
+        return reportAccount;
+      }
+      const reportAccount = await Operation.findAll(filter);
+      return reportAccount;
+    } catch (error) {
+      throw apiError404;
     }
   }
 
